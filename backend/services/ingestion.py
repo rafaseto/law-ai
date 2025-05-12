@@ -35,6 +35,26 @@ def fetch_doc(url: str) -> str:
     return response.text
 
 
+def remove_deleted_text(soup: BeautifulSoup) -> None:
+    """
+    Remove deleted excerpts
+
+    Args:
+        soup (BeautifulSoup): A data structure representing a parsed
+                              HTML or XML document.
+
+    Returns:
+        None
+    """
+    
+    # Remove deleted text
+    for tag in soup.find_all(['strike', 's', 'del']):
+        tag.decompose()
+
+    for tag in soup.find_all(lambda t: t.has_attr('style') and 'line-through' in t['style']):
+        tag.decompose()
+
+
 def extract_text(html: str) -> str:
     """
     Extract text from HTML content.
@@ -47,7 +67,13 @@ def extract_text(html: str) -> str:
     """
     try:
         soup = BeautifulSoup(html, "html.parser")
+        
+        # Remove deleted text
+        remove_deleted_text(soup)
+        
+        # Get the text from the soup object
         text = soup.get_text()
+
         return text.strip()
     except Exception as e:
         logger.exception(
