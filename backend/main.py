@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import requests
-from services.ingestion import fetch_doc
+from services.ingestion import fetch_doc, extract_text
 
 app = FastAPI(debug=True, title="LawAI")
 
@@ -17,4 +17,6 @@ def health_check():
 
 @app.post("/ingest")
 def ingest_doc(req: IngestRequest):
-    return fetch_doc(req.url)
+    html = fetch_doc(req.url)
+    text = extract_text(html)
+    return text
